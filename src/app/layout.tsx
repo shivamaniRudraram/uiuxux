@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { AuthProvider } from '@/context/AuthContext';
@@ -12,7 +12,11 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: 'SkillBridge AI - All-in-One Career Development Hub',
   description: 'AI-powered resume builder, live career coaching, peer-to-peer skill swap, interactive mock interviews, and automated job matching.',
-  viewport: 'width=device-width, initial-scale=1',
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
 };
 
 export default function RootLayout({
