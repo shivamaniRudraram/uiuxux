@@ -1,0 +1,143 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  passwordHash  String
+  name          String
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  onboarded     Boolean   @default(false)
+  
+  // Profile / Onboarding Data
+  careerGoal    String?
+  experience    String?   // Entry, Mid, Senior
+  skills        String?   // Comma separated
+  targetRoles   String?   // Comma separated
+  learningTopics String?  // Comma separated
+  bio           String?
+  avatarUrl     String?
+
+  // Relations
+  resumes       Resume[]
+  applications  JobApplication[]
+  savedJobs     SavedJob[]
+  portfolio     Portfolio?
+  skillSwaps    SkillSwap[]
+  courses       UserCourse[]
+  interviews    MockInterview[]
+  notifications Notification[]
+  posts         CommunityPost[]
+}
+
+model Resume {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title       String
+  content     String   // JSON stringified resume content
+  atsScore    Int      @default(0)
+  aiFeedback  String?  // JSON suggestions
+  template    String   // modern, classic, minimal
+  updatedAt   DateTime @updatedAt
+}
+
+model Job {
+  id          String   @id @default(uuid())
+  title       String
+  company     String
+  location    String
+  salary      String
+  type        String   // Full-time, Remote, etc
+  description String
+  skills      String   // Comma separated requirements
+  postedAt    DateTime @default(now())
+}
+
+model JobApplication {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  jobTitle  String
+  company   String
+  status    String   // Applied, Interviewing, Offered, Rejected
+  appliedAt DateTime @default(now())
+  notes     String?
+}
+
+model SavedJob {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  jobId  String
+}
+
+model Portfolio {
+  id          String   @id @default(uuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  theme       String   @default("minimal")
+  projects    String   // JSON string of projects
+  experience  String   // JSON string of experience items
+  publicShare Boolean  @default(true)
+}
+
+model SkillSwap {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  teachSkill  String
+  learnSkill  String
+  status      String   // Open, Matched, Completed
+  createdAt   DateTime @default(now())
+}
+
+model UserCourse {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  courseId    String
+  title       String
+  category    String
+  progress    Int      @default(0) // 0-100
+  completed   Boolean  @default(false)
+  updatedAt   DateTime @updatedAt
+}
+
+model MockInterview {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role        String
+  type        String   // Technical, HR, Behavioral
+  score       Int      @default(0)
+  feedback    String   // JSON feedback
+  createdAt   DateTime @default(now())
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  message   String
+  type      String   // info, success, warning
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model CommunityPost {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  content   String
+  category  String   // General, Mentorship, Advice
+  createdAt DateTime @default(now())
+}
